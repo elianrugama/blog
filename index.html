@@ -11,6 +11,7 @@
 
 
 <body>
+  
   <div id="modal" style="display:none">
     <!-- Button trigger modal -->
 
@@ -69,9 +70,7 @@
     </div>
     <button onclick="logout()">Cerrar sesión</button>
   </div>
-  <div id="registrar" style="display:none">
-    <a href="indexs.html">crear post</a>
-  </div>
+  
   <div class="container" id="entrada">
 
   </div>
@@ -233,6 +232,7 @@
               }).then(function () {
                 console.log('Comentario agregado');
                 console.log('Gracias por comentar, ' + userName);
+                showEntries()
                 commentInput.val('');
               }).catch(function (error) {
                 console.error('Error al agregar el comentario: ', error);
@@ -310,6 +310,7 @@
               alert('Entrada creada correctamente');
               // Limpiar el formulario después de crear la entrada
               document.getElementById('create-entry-form').reset();
+              showEntries()
             })
             .catch(function (error) {
               console.error('Error creando entrada: ', error);
@@ -382,6 +383,7 @@
             }).then(function() {
               console.log('Comentario agregado');
               alert('Gracias por comentar, ' + userName);
+              showEntries()
               commentInput.val('');
             }).catch(function(error) {
               console.error('Error al agregar el comentario: ', error);
