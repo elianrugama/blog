@@ -11,7 +11,13 @@
 
 
 <body>
-  
+  <style>
+    .dark-mode {
+      background-color: #222;
+      color: #fff;
+    }
+
+  </style>
   <div id="modal" style="display:none">
     <!-- Button trigger modal -->
 
@@ -70,7 +76,16 @@
     </div>
     <button onclick="logout()">Cerrar sesión</button>
   </div>
-  
+
+  <button onclick="modo_oscuro()">Cambiar a modo oscuro</button>
+  <script>
+    function modo_oscuro() {
+      const body = document.querySelector('body');
+      body.classList.toggle('dark-mode');
+    }
+    
+  </script>
+
   <div class="container" id="entrada">
 
   </div>
