@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Iniciar sesión con Firebase y Google</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+</head>
+
+
+
+<body>
+  <div id="modal" style="display:none">
+    <!-- Button trigger modal -->
+
+  </div>
+
+  <div id="login-container">
+    <h2>Iniciar sesión</h2>
+    <form id="login-form">
+
+      <button type="button" onclick="signInWithGoogle()">Iniciar sesión con Google</button>
+
+    </form>
+  </div>
+  <div id="login-form"></div>
+  <div id="logout-button" style="display:none">
+    <div id="modal">
+      <!-- Button trigger modal -->
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+        agregar post
+      </button>
+
+      <!-- Modal -->
+      <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="staticBackdropLabel">agregar post</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <h4 id="subiendo">subiendo</h4>
+              <form id="create-entry-form" enctype="multipart/form-data">
+                <label for="title-input">Título:</label>
+                <input type="text" id="title-input" required><br>
+
+                <label for="description-input">Descripción:</label>
+                <textarea id="description-input" required></textarea><br>
+
+                <label for="image-input">Imagen:</label>
+                <input type="file" id="image-input" name="image" accept="image/*"><br>
+
+                <label for="audio-input">Audio:</label>
+                <input type="file" id="audio-input" name="audio" accept="audio/*"><br>
+
+                <button type="submit">Crear entrada</button>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">listo</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button onclick="logout()">Cerrar sesión</button>
+  </div>
+  <div id="registrar" style="display:none">
+    <a href="indexs.html">crear post</a>
+  </div>
+  <div class="container" id="entrada">
+
+  </div>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+    integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+    integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+    crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+
+  <script>
+    // Initialize Firebase
+    var firebaseConfig = {
+      // Agrega aquí la configuración de tu proyecto de Firebase
+      apiKey: "AIzaSyAU72cHuQjvfsxL6NqeoyVpVS60PP_DuTI",
+      authDomain: "dbdatabase-645c6.firebaseapp.com",
+      projectId: "dbdatabase-645c6",
+      storageBucket: "dbdatabase-645c6.appspot.com",
+      messagingSenderId: "731261451164",
+      appId: "1:731261451164:web:5eeccb16ba8729b9b86659"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Reference to Firebase auth object
+    const auth = firebase.auth();
+    var db = firebase.firestore();
+    var storage = firebase.storage();
+    // mostrar formulario si no a iniciado sesion
+    function verInicio() {
+      auth.onAuthStateChanged(function (user) {
+        if (user) {
+          // User is signed in, hide login form
+          document.getElementById("login-container").style.display = "none";
+          console.log("usuario iniciado")
+          renderLogin()
+        } else {
+          // User is not signed in, show login form
+          document.getElementById("login-container").style.display = "block";
+        }
+      });
+    }
+
+    // Function to sign in with Google
+    function signInWithGoogle() {
+      var provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then((result) => {
+          // User is signed in
+          console.log(result.user);
+          console.log(result.user.displayName); // Muestra el nombre del usuario
+          console.log(result.user.photoURL); // Muestra la URL de la imagen del usuario
+
+        })
+        .catch((error) => {
+          // Handle error
+          console.log(error);
+        });
+    }
+
+    // Call function to display login form if user is not signed in
+    verInicio();
+
+    function renderLogin() {
+      var loginForm = document.getElementById("login-form");
+      var logoutButton = document.getElementById("logout-button");
+      var registrar = document.getElementById("registrar");
+      var post = document.getElementById("modal");
+      if (firebase.auth().currentUser) {
+        // Si el usuario ha iniciado sesión, mostrar el botón de cierre de sesión
+        loginForm.style.display = "none";
+        logoutButton.style.display = "block";
+        registrar.style.display = "block";
+        post.style.display = "block";
+      } else {
+        // Si el usuario no ha iniciado sesión, mostrar el formulario de inicio de sesión
+        loginForm.style.display = "block";
+        logoutButton.style.display = "none";
+      }
+    }
+    function logout() {
+      firebase.auth().signOut().then(function () {
+        // La sesión ha sido cerrada con éxito
+      }).catch(function (error) {
+        // Ha ocurrido un error al cerrar la sesión
+        console.log(error);
+      });
+    }
+
+    function showEntries() {
+      db.collection('usuarios').get().then(function (querySnapshot) {
+        var entryContainer = $('#entrada');
+        entryContainer.empty();
+        querySnapshot.forEach(function (doc) {
+          var data = doc.data();
+          var id = doc.id;
+
+          var entryHTML = `
+  <div class="entry">
+    <h3>${data.title}</h3>
+    <strong>${data.createdAt}</strong>
+    <a href="blog.html?id=${id}">
+      <img src="${data.image}" width="50" height="50" />
+    </a>
+    <ul class="comments">
+`;
+          if (data.comments && data.comments.length > 0) {
+            data.comments.forEach(function (comment) {
+              var commentText = comment.text;
+              var userName = comment.userName;
+              var userPhotoURL = comment.userPhotoURL;
+              entryHTML += `
+                <li>
+                  
+                  <img src="${userPhotoURL}" width="30" height="30" />
+                  <strong>${userName}:</strong> ${commentText}
+                </li>
+              `;
+            });
+          } else {
+            entryHTML += `
+              <li>No hay comentarios</li>
+            `;
+          }
+          entryHTML += `
+              </ul>
+              <form>
+                <input type="text" name="comment" placeholder="Agrega un comentario..." />
+                <button type="submit">Agregar</button>
+              </form>
+            </div>
+          `;
+
+          var entry = $(entryHTML);
+          var commentForm = entry.find('form');
+          var commentInput = entry.find('input[name="comment"]');
+
+          commentForm.submit(function (event) {
+            event.preventDefault();
+            var commentText = commentInput.val().trim();
+            if (commentText !== '') {
+              var user = firebase.auth().currentUser;
+              var userId = user.uid;
+              var userName = user.displayName;
+              var userPhotoURL = user.photoURL;
+              var commentData = {
+                text: commentText,
+                userId: userId,
+                userName: userName,
+                userPhotoURL: userPhotoURL
+              };
+              db.collection('usuarios').doc(id).update({
+                comments: firebase.firestore.FieldValue.arrayUnion(commentData)
+              }).then(function () {
+                console.log('Comentario agregado');
+                console.log('Gracias por comentar, ' + userName);
+                commentInput.val('');
+              }).catch(function (error) {
+                console.error('Error al agregar el comentario: ', error);
+              });
+            }
+          });
+
+          entryContainer.append(entry);
+        });
+      });
+    }
+
+    showEntries();
+
+
+    // Controlador de eventos para el formulario de creación de entrada
+    document.getElementById('create-entry-form').addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      var title = document.getElementById('title-input').value;
+      var description = document.getElementById('description-input').value;
+      var image = document.getElementById('image-input').files[0];
+      var audio = document.getElementById('audio-input').files[0];
+
+
+      // Función para subir archivos a Cloud Storage
+      const uploadFile = (file, fileName) => {
+        return new Promise((resolve, reject) => {
+
+          const fileRef = storage.ref(fileName);
+          const task = fileRef.put(file);
+          const subiendoH4 = document.getElementById('subiendo');
+          task.on('state_changed',
+            (snapshot) => {
+              console.log('Subiendo archivo: ', snapshot.bytesTransferred, '/', snapshot.totalBytes);
+              // Obtener referencia al elemento h4
+
+
+              // Actualizar el texto del elemento con el valor de snapshot.bytesTransferred
+              //subiendoH4.textContent = 'Subiendo archivo: ' + snapshot.bytesTransferred + '/' + snapshot.totalBytes;
+              // Obtener referencia al elemento h4
+              //const subiendoH4 = document.getElementById('subiendo');
+
+              // Actualizar el contenido del elemento con el valor de snapshot.bytesTransferred
+              subiendoH4.innerHTML = 'Subiendo archivo: ' + snapshot.bytesTransferred + '/' + snapshot.totalBytes;
+
+            },
+            (error) => {
+              reject(`Error al subir archivo "${fileName}": ${error}`);
+            },
+            () => {
+              resolve(task.snapshot.ref.getDownloadURL());
+            });
+        });
+      };
+
+      uploadFile(image, 'images/' + image.name).then((imageUrl) => {
+        uploadFile(audio, 'audios/' + audio.name).then((audioUrl) => {
+          // Guardar los URLs de la imagen y audio en la base de datos
+          db.collection('usuarios').add({
+            title: title,
+            description: description,
+            image: imageUrl,
+            audio: audioUrl,
+            comments: [], // una matriz vacía para almacenar comentarios
+            likes: 0, // un número entero para almacenar la cantidad de likes
+            shares: 0, // un número entero para almacenar la cantidad de veces compartido
+
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(), // agrega la fecha actual del servidor
+            createdBy: firebase.auth().currentUser.uid,
+            creadopor: firebase.auth().currentUser.displayName,
+            foto:firebase.auth().currentUser.photoURL
+          })
+            .then(function () {
+              alert('Entrada creada correctamente');
+              // Limpiar el formulario después de crear la entrada
+              document.getElementById('create-entry-form').reset();
+            })
+            .catch(function (error) {
+              console.error('Error creando entrada: ', error);
+            });
+        });
+      });
+    });
+
+    $(document).ready(function() {
+      var url = window.location.href;
+      var id = url.substring(url.lastIndexOf('#') + 1);
+      var entryContainer = $('#datos');
+    
+      db.collection('usuarios').doc(id).get().then(function(doc) {
+        var data = doc.data();
+        console.log(data)
+        var entryHTML = `
+          <div class="entry">
+            <h3>${data.title}</h3>
+            <img src="${data.image}" width="50" height="50"/>
+            <p>${data.content}</p>
+            <ul class="comments">
+        `;
+        if (data.comments && data.comments.length > 0) {
+          data.comments.forEach(function(comment) {
+            var commentText = comment.text;
+            var userName = comment.userName;
+            var userPhotoURL = comment.userPhotoURL;
+            entryHTML += `
+              <li>
+                <img src="${userPhotoURL}" width="30" height="30" />
+                <strong>${userName}:</strong> ${commentText}
+              </li>
+            `;
+          });
+        } else {
+          entryHTML += `
+            <li>No hay comentarios</li>
+          `;
+        }
+        entryHTML += `
+            </ul>
+            <form>
+              <input type="text" name="comment" placeholder="Agrega un comentario..." />
+              <button type="submit">Agregar</button>
+            </form>
+          </div>
+        `;
+    
+        var entry = $(entryHTML);
+        var commentForm = entry.find('form');
+        var commentInput = entry.find('input[name="comment"]');
+    
+        commentForm.submit(function(event) {
+          event.preventDefault();
+          var commentText = commentInput.val().trim();
+          if (commentText !== '') {
+            var user = firebase.auth().currentUser;
+            var userId = user.uid;
+            var userName = user.displayName;
+            var userPhotoURL = user.photoURL;
+            var commentData = {
+              text: commentText,
+              userId: userId,
+              userName: userName,
+              userPhotoURL: userPhotoURL
+            };
+            db.collection('usuarios').doc(id).update({
+              comments: firebase.firestore.FieldValue.arrayUnion(commentData)
+            }).then(function() {
+              console.log('Comentario agregado');
+              alert('Gracias por comentar, ' + userName);
+              commentInput.val('');
+            }).catch(function(error) {
+              console.error('Error al agregar el comentario: ', error);
+            });
+          }
+        });
+    
+        entryContainer.append(entry);
+      });
+    });
+  </script>
+</body>
+
+</html>

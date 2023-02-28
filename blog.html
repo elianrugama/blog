@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Detalles del Post</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+  
+</head>
+<body>
+  <header>
+    <h1>Detalles del Post</h1>
+    <nav>
+      <ul>
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/admin">Administrar</a></li>
+        <li><a href="/logout">Cerrar sesión</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <div id="post"></div>
+    <div id="comments"></div>
+  </main>
+  <div class="container" id="entry-container'">
+    <div id="datos">
+
+    </div>
+  </div>
+
+
+<script src="ma.js"></script>
+  <script>
+
+    var firebaseConfig = {
+        // Agrega aquí la configuración de tu proyecto de Firebase
+        apiKey: "AIzaSyAU72cHuQjvfsxL6NqeoyVpVS60PP_DuTI",
+        authDomain: "dbdatabase-645c6.firebaseapp.com",
+        projectId: "dbdatabase-645c6",
+        storageBucket: "dbdatabase-645c6.appspot.com",
+        messagingSenderId: "731261451164",
+        appId: "1:731261451164:web:5eeccb16ba8729b9b86659"
+      };
+      firebase.initializeApp(firebaseConfig);
+  
+      // Reference to Firebase auth object
+      const auth = firebase.auth();
+      var db = firebase.firestore();
+      var storage = firebase.storage();
+      
+      
+  </script>
+</body>
+</html>
